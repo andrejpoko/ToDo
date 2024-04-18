@@ -1,7 +1,7 @@
 <div class="app-container">
-  <h2>To-Do List</h2>
+  <h1>To-Do List</h1>
   <div class="content-wrapper">
-    <div class="to-do">a</div>
-    <div class="done">a</div>
+    <app-items-list class="to-do"></app-items-list>
+    <app-items-list class="done" [isToDo]="false"></app-items-list>
   </div>
 </div>

@@ -1,9 +1,13 @@
 .app-container {
   margin: 1rem;
 
+  h1 {
+    padding: 24px;
+  }
+
   .content-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-gap: 1rem;
+    grid-gap: 2rem;
   }
 }

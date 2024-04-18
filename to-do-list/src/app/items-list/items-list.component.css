@@ -1,0 +1,36 @@
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .card-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .card-title {
+      background-color: #659dd4;
+      color: white;
+      padding: 10px;
+      text-align: center;
+
+      &.done-title {
+        background-color: #71d353;
+      }
+    }
+  }
+
+  .task-row:nth-child(n) {
+    height: auto;
+
+    .task-text {
+      white-space: break-spaces;
+    }
+  }
+
+  .add-item {
+    max-width: fit-content;
+    align-self: end;
+    font-size: 16px;
+  }
+}
