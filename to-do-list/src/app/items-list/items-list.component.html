@@ -3,10 +3,10 @@
     <h2 mat-subheader class="list-title" [class.done-title]="isToDo === false">
       {{ isToDo ? "To Do" : "Done" }}
     </h2>
-    <ng-container *ngIf="(listTasks$ | async) as tasks; else noTasks">
+    <ng-container *ngIf="(listTasks$ | async)?.length; else noTasks">
       <mat-list-item
         class="task-row mat-elevation-z3"
-        *ngFor="let task of tasks; let i = index"
+        *ngFor="let task of listTasks$ | async; let i = index"
       >
         <div class="content">
           <div class="content-box">
@@ -38,7 +38,6 @@
       </mat-list-item>
     </ng-container>
   </mat-list>
-
   <button
     mat-button
     color="accent"
@@ -52,5 +51,5 @@
 </div>
 
 <ng-template #noTasks>
-  <p>There are currently no tasks. Add or move tasks.</p>
+    <p class="no-tasks">There are currently no tasks. Add new or move tasks.</p>
 </ng-template>

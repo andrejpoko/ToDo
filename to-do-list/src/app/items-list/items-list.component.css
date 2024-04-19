@@ -45,3 +45,7 @@
     font-size: 16px;
   }
 }
+
+.no-tasks {
+  margin: 1rem;
+}
