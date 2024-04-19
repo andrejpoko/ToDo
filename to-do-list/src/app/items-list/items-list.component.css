@@ -3,20 +3,16 @@
   flex-direction: column;
   gap: 1rem;
 
-  .card-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  .list-title {
+    background-color: #659dd4;
+    color: white;
+    padding: 16px;
+    text-align: center;
+    margin: 0 !important;
+    font-size: 24px;
 
-    .card-title {
-      background-color: #659dd4;
-      color: white;
-      padding: 10px;
-      text-align: center;
-
-      &.done-title {
-        background-color: #71d353;
-      }
+    &.done-title {
+      background-color: #71d353;
     }
   }
 
@@ -25,6 +21,21 @@
 
     .task-text {
       white-space: break-spaces;
+    }
+  }
+
+  .content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .content-header {
+      display: flex;
+      flex-direction: row;
+    }
+    .example-margin {
+      margin: 0 12px;
+      transform: scale(1.4);
     }
   }
 

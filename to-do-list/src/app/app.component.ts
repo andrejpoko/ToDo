@@ -9,6 +9,4 @@ import { ItemsListComponent } from './items-list/items-list.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent {
-  title = 'to-do-list';
-}
+export class AppComponent {}

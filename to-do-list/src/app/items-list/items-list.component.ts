@@ -1,24 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
-import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCommonModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { Item } from './item.model';
-import { MatDialog } from '@angular/material/dialog';
-import {
-  TaskDialogComponent,
-  TaskDialogData,
-} from '../shared/task-dialog/task-dialog.component';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import
+  {
+    TaskDialogComponent,
+    TaskDialogData,
+  } from '../shared/task-dialog/task-dialog.component';
+import { ItemsListService } from './items-list.service';
 
 @Component({
   standalone: true,
@@ -36,36 +32,47 @@ import {
     MatCheckboxModule,
   ],
 })
-export class ItemsListComponent implements OnInit {
+export class ItemsListComponent implements OnInit, OnDestroy {
   @Input() isToDo: boolean = true;
-  form: FormGroup;
+  tasks: TaskDialogData[] = [];
+  private destroy$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder, public dialog: MatDialog) {
-    this.form = this.fb.group({
-      tasks: this.fb.array([]),
-    });
+  constructor(
+    private itemListService: ItemsListService,
+    public dialog: MatDialog
+  ) {}
+
+  get listTasks$(): Observable<TaskDialogData[]> {
+    return this.isToDo
+      ? this.itemListService.tasks$
+      : this.itemListService.doneTasks$;
   }
 
-  ngOnInit() {
-    this.addInitialTasks();
+  ngOnInit(): void {
+    if (this.isToDo) {
+      this.itemListService.tasks$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((tasks) => {
+          this.tasks = tasks;
+        });
+    }
   }
 
-  openAddTaskDialog(): void {
+  addTask(): void {
     const dialogRef = this.dialog.open(TaskDialogComponent, {
       width: '40vw',
       data: { name: '', description: '', header: 'Add New Task' },
     });
 
-    dialogRef.afterClosed().subscribe((result: TaskDialogData) => {
-      if (!result.name) {
-        return;
+    dialogRef.afterClosed().subscribe((res: TaskDialogData) => {
+      if (res && res.name) {
+        this.itemListService.addTask(res);
       }
-      this.addNewTask(result.name, result.description);
     });
   }
 
   editTask(i: number): void {
-    const task = this.tasks.at(i).value;
+    const task = this.tasks[i];
     const dialogRef = this.dialog.open(TaskDialogComponent, {
       width: '40vw',
       data: {
@@ -75,58 +82,23 @@ export class ItemsListComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result: TaskDialogData) => {
-      if (!result.name) {
-        return;
+    dialogRef.afterClosed().subscribe((res: TaskDialogData) => {
+      if (res && res.name) {
+        this.itemListService.editTask(i, res);
       }
-      this.editExistingTask(result, i);
     });
   }
 
-  private addInitialTasks(): void {
-    const initialTasks = [
-      {
-        name: 'Task 1',
-        description:
-          'Very looooong Task Description, Description, Description, Description, Description, Description, Description, Description, Description, Description, Description, Description, Description, Description, Description, Description',
-        checked: false,
-      },
-      { name: 'Task 2', description: 'Description of Task 2', checked: false },
-      { name: 'Task 3', description: 'Description of Task 3', checked: false },
-    ];
-
-    const tasksFormArray = this.tasks;
-    initialTasks.forEach((task) => {
-      tasksFormArray.push(
-        this.fb.group({
-          name: [task.name, Validators.required],
-          description: [task.description, Validators.required],
-          checked: [task.checked],
-        })
-      );
-    });
+  moveToDone(index: number): void {
+    this.itemListService.moveToDone(index);
   }
 
-  private addNewTask(name: string, desc: string): void {
-    const taskForm = this.fb.group({
-      name: [name, Validators.required],
-      description: [desc, Validators.required],
-    });
-    this.tasks.push(taskForm);
+  removeFromDone(index: number): void {
+    this.itemListService.removeFromDone(index);
   }
 
-  private editExistingTask(data: TaskDialogData, index: number) {
-    this.tasks.at(index).patchValue({
-      name: data.name,
-      description: data.description,
-    });
-  }
-
-  moveToDone(taskIndex: number): void {
-    this.tasks.removeAt(taskIndex);
-  }
-
-  get tasks(): FormArray {
-    return this.form.get('tasks') as FormArray;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
